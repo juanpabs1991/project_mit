@@ -1,0 +1,71 @@
+services:
+  # ---------------------------------------------------------------------------
+  # Laravel application
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: attendly_app
+    ports:
+      - "8000:8000"
+    environment:
+      # App
+      APP_NAME: "Attendly Attendance System"
+      APP_ENV: local
+      APP_KEY: "${APP_KEY:-}"
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:8000"
+      APP_TIMEZONE: Asia/Taipei
+      # Database — host is the service name "db", NOT localhost
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: "${DB_DATABASE:-attendance_system}"
+      DB_USERNAME: "${DB_USERNAME:-attendly}"
+      DB_PASSWORD: "${DB_PASSWORD:-secret}"
+      # Session / cache / queue (use database so state survives restarts)
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - attendly
+
+  # ---------------------------------------------------------------------------
+  # MySQL database
+  # ---------------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: attendly_db
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-attendance_system}"
+      MYSQL_USER: "${DB_USERNAME:-attendly}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-rootsecret}"
+    # We do NOT publish 3306 to the host — keeps the DB off the public network.
+    # If you need to inspect it from the host, uncomment the next line:
+    # ports:
+    #   - "127.0.0.1:3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootsecret}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - attendly
+
+# Named volume so MySQL data survives container rebuilds/removals
+volumes:
+  dbdata:
+
+networks:
+  attendly:
+    driver: bridge

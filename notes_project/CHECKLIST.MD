@@ -75,29 +75,29 @@ Note: The assignment specifically wants everything installed by hand here — no
 
 STEP 4: Containerize the App with Docker
 4.1 Write the Dockerfile
-[ ]  Choose a PHP base image with extensions (e.g. php:8.2-fpm or php:8.2-cli; install pdo_mysql, mbstring, xml, zip, gd).
-[ ]  Set the working directory inside the image (WORKDIR /var/www/html).
-[ ]  Install Composer inside the image (COPY composer.json composer.lock, run composer install --no-dev --optimize-autoloader).
-[ ]  Copy the rest of the application source code in.
-[ ]  Run npm install && npm run build at build time (multi-stage build recommended: use a node image to compile assets, then copy public/build into the final image).
-[ ]  Expose the port your app listens on inside the container (EXPOSE 8000).
-[ ]  Set the command that starts the app (php artisan serve --host=0.0.0.0 --port=8000) — or use PHP-FPM + a separate Nginx container.
-[ ]  Ensure storage/ and bootstrap/cache/ are writable by the web user (chmod/chown).
+[x]  Choose a PHP base image with extensions (e.g. php:8.2-fpm or php:8.2-cli; install pdo_mysql, mbstring, xml, zip, gd).
+[x]  Set the working directory inside the image (WORKDIR /var/www/html).
+[x]  Install Composer inside the image (COPY composer.json composer.lock, run composer install --no-dev --optimize-autoloader).
+[x]  Copy the rest of the application source code in.
+[x]  Run npm install && npm run build at build time (multi-stage build recommended: use a node image to compile assets, then copy public/build into the final image).
+[x]  Expose the port your app listens on inside the container (EXPOSE 8000).
+[x]  Set the command that starts the app (php artisan serve --host=0.0.0.0 --port=8000) — or use PHP-FPM + a separate Nginx container.
+[x]  Ensure storage/ and bootstrap/cache/ are writable by the web user (chmod/chown).
 4.2 Write docker-compose.yml
-[ ]  Add a service for your Laravel app (build: ., ports: "8000:8000").
-[ ]  Add a service for MySQL (image: mysql:8.0, environment for MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_ROOT_PASSWORD — all from .env).
-[ ]  Let the app connect to MySQL using the service name as DB_HOST (e.g. DB_HOST=db) — not localhost.
-[ ]  Pass database configuration through environment variables in docker-compose.yml, not hardcoded values.
-[ ]  Add a named Docker volume for MySQL's data (volumes: dbdata:/var/lib/mysql) so it survives container restarts.
-[ ]  Add a healthcheck for MySQL so the app waits until the DB is ready before migrating.
-[ ]  Map your app's container port to a host port so it's reachable in a browser (ports: "8000:8000").
-[ ]  Do not expose MySQL's port to the public host unless you genuinely need to (omit "3306:3306" or bind to 127.0.0.1 only).
-[ ]  Add an entrypoint/command that runs php artisan migrate --force && php artisan db:seed --force before starting php artisan serve.
+[x]  Add a service for your Laravel app (build: ., ports: "8000:8000").
+[x]  Add a service for MySQL (image: mysql:8.0, environment for MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_ROOT_PASSWORD — all from .env).
+[x]  Let the app connect to MySQL using the service name as DB_HOST (e.g. DB_HOST=db) — not localhost.
+[x]  Pass database configuration through environment variables in docker-compose.yml, not hardcoded values.
+[x]  Add a named Docker volume for MySQL's data (volumes: dbdata:/var/lib/mysql) so it survives container restarts.
+[x]  Add a healthcheck for MySQL so the app waits until the DB is ready before migrating.
+[x]  Map your app's container port to a host port so it's reachable in a browser (ports: "8000:8000").
+[x]  Do not expose MySQL's port to the public host unless you genuinely need to (omit "3306:3306" or bind to 127.0.0.1 only).
+[x]  Add an entrypoint/command that runs php artisan migrate --force && php artisan db:seed --force before starting php artisan serve.
 4.3 Test it
-[ ]  Run docker compose up --build and confirm both services start.
-[ ]  Run docker ps and confirm both the app and MySQL containers are running.
-[ ]  Perform a full Create → Read → Update → Delete cycle on Students through the Docker deployment.
-[ ]  Perform a kiosk time-in / time-out and confirm it appears in Attendance Logs.
+[x]  Run docker compose up --build and confirm both services start.
+[x]  Run docker ps and confirm both the app and MySQL containers are running.
+[ ]  Perform a full Create → Read → Update → Delete cycle on Students through the Docker deployment.  ← do this in the browser at http://localhost:8000
+[ ]  Perform a kiosk time-in / time-out and confirm it appears in Attendance Logs.  ← do this in the browser at http://localhost:8000/kiosk
 
 STEP 5: Prove the Docker Deployment Works From a Clean Build
 [ ]  Stop the current deployment (docker compose down).
